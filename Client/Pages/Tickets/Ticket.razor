@@ -1,0 +1,67 @@
+﻿@page "/tickets"
+@inject HttpClient http
+@inject NavigationManager navegator
+@using Actividad_18.Shared.Models
+
+<h3>Tickets</h3>
+
+
+<button class="btn btn-primary" @onclick=agregar>Nuevo Ticket</button>
+@if (lostickets == null)
+{
+    <h4>Cargando...</h4>
+}
+else if (lostickets.Count == 0)
+{
+    <h4>No se encontro ningun cliente</h4>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var l in lostickets)
+            {
+                <tr>
+                    <td>@l.Id</td>
+                    <td>@l.Fecha</td>
+                    <td>@l.Total</td>
+                    <td><button class="btn btn-primary" @onclick="(()=>Editar(Convert.ToInt32(l.Id)))">Editar datos</button></td>
+                    <td><button class="btn btn-primary" @onclick="(()=>Eliminar(l))">Eliminar ticket</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private List<Tickets> lostickets = new List<Tickets>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        lostickets = await http.GetFromJsonAsync<List<Tickets>>("api/Tickets");
+    }
+
+    public void agregar()
+    {
+        navegator.NavigateTo("/Ticket/Nuevo");
+    }
+    public async Task Eliminar(Tickets tic)
+    {
+        await http.DeleteAsync($"api/Tickets/{tic.Id}");
+        lostickets.Remove(tic);
+    }
+
+    private void Editar(int Id)
+    {
+        navegator.NavigateTo($"/Tickets/Editar/{Id}");
+    }
+}

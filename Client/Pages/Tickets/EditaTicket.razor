@@ -1,0 +1,42 @@
+﻿@page "/Tickets/Editar/{Id:int}"
+@inject HttpClient http
+@inject NavigationManager navegator
+@using Actividad_18.Shared.Models
+
+<h3>Editar Ticket</h3>
+
+<h3>Nuevo Ticket</h3>
+<EditForm Model="tic" OnValidSubmit="Editar">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label for="txtNombre" class="form-label">Fecha</label>
+        <InputDate id="txtNombre" class="form-control" @bind-Value="tic.Fecha" />
+    </div>
+    <div class="mb-3">
+        <label for="numTotal" class="form-label">Total</label>
+        <InputNumber id="numTotal" class="form-control" @bind-Value="tic.Total" />
+    </div>
+    <div class="mb-3">
+        <label for="numCliente" class="form-label">Id del Cliente</label>
+        <InputNumber id="numCliente" class="form-control" @bind-Value="tic.ClientesId" />
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    private Tickets tic = new Tickets();
+
+    protected override async Task OnInitializedAsync()
+    {
+        tic = await http.GetFromJsonAsync<Tickets>($"api/Tickets/{Id}");
+    }
+
+    private async void Editar()
+    {
+        await http.PutAsJsonAsync($"api/Tickets/{Id}", tic);
+        navegator.NavigateTo("/tickets");
+    }
+}
